@@ -5,10 +5,12 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collections;
 
 public class JwtFilter extends OncePerRequestFilter {
 
@@ -26,8 +28,11 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        // 🔹 Ignorer Swagger et OpenAPI
-        if (path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")) {
+        // Ignorer Swagger, OpenAPI et routes publiques
+        if (path.startsWith("/swagger-ui")
+                || path.startsWith("/v3/api-docs")
+                || path.equals("/api/utilisateurs/login")
+                || path.equals("/api/utilisateurs")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -35,16 +40,19 @@ public class JwtFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
+            String token = authHeader.substring(7).trim();
             if (jwtUtil.validateToken(token)) {
                 String email = jwtUtil.extractEmail(token);
                 UsernamePasswordAuthenticationToken auth =
-                        new UsernamePasswordAuthenticationToken(email, null, null);
+                        new UsernamePasswordAuthenticationToken(
+                                email,
+                                null,
+                                Collections.singletonList(new SimpleGrantedAuthority("USER"))
+                        );
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }
 
-        // 🔥 TOUJOURS continuer la chaîne, même si pas de token
         filterChain.doFilter(request, response);
     }
 }
