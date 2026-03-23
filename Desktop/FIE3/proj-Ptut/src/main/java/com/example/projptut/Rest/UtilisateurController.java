@@ -44,6 +44,7 @@ public class UtilisateurController {
         response.put("email", user.getEmail());
         response.put("nom", user.getNom());
         response.put("statut", user.getStatut());
+        response.put("id", String.valueOf(user.getId()));
         return response;
 
         }
