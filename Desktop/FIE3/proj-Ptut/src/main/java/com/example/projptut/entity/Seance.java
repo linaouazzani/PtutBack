@@ -38,4 +38,101 @@ public class Seance {
     @ManyToOne
     @JoinColumn(name = "patient_id")
     private Patient patient;
+
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public LocalDateTime getDateDebut() {
+        return dateDebut;
+    }
+
+    public void setDateDebut(LocalDateTime dateDebut) {
+        this.dateDebut = dateDebut;
+    }
+
+    public LocalDateTime getDateFin() {
+        return dateFin;
+    }
+
+    public void setDateFin(LocalDateTime dateFin) {
+        this.dateFin = dateFin;
+    }
+
+    public Integer getDureeMinutes() {
+        return dureeMinutes;
+    }
+
+    public void setDureeMinutes(Integer dureeMinutes) {
+        this.dureeMinutes = dureeMinutes;
+    }
+
+    public Double getWattsMin() {
+        return wattsMin;
+    }
+
+    public void setWattsMin(Double wattsMin) {
+        this.wattsMin = wattsMin;
+    }
+
+    public Double getWattsMoy() {
+        return wattsMoy;
+    }
+
+    public void setWattsMoy(Double wattsMoy) {
+        this.wattsMoy = wattsMoy;
+    }
+
+    public Double getWattsMax() {
+        return wattsMax;
+    }
+
+    public void setWattsMax(Double wattsMax) {
+        this.wattsMax = wattsMax;
+    }
+
+    public Integer getBpmMin() {
+        return bpmMin;
+    }
+
+    public void setBpmMin(Integer bpmMin) {
+        this.bpmMin = bpmMin;
+    }
+
+    public Integer getBpmMoy() {
+        return bpmMoy;
+    }
+
+    public void setBpmMoy(Integer bpmMoy) {
+        this.bpmMoy = bpmMoy;
+    }
+
+    public Integer getBpmMax() {
+        return bpmMax;
+    }
+
+    public void setBpmMax(Integer bpmMax) {
+        this.bpmMax = bpmMax;
+    }
+
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
+
+    public Patient getPatient() {
+        return patient;
+    }
+
+    public void setPatient(Patient patient) {
+        this.patient = patient;
+    }
 }
