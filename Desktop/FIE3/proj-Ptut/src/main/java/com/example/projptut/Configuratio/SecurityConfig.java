@@ -49,7 +49,9 @@ public class SecurityConfig {
         config.setAllowedOrigins(List.of(
             "http://localhost:5173",
             "http://localhost:5174",
-            "http://localhost:3000"
+            "http://localhost:3000",
+            "https://playandride.alwaysdata.net",
+            "https://ptut-play-n-ride-front.onrender.com"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
