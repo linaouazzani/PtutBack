@@ -1,7 +1,10 @@
 package com.example.projptut.Rest;
 
+import com.example.projptut.entity.Patient;
 import com.example.projptut.entity.Seance;
 import com.example.projptut.Service.SeanceService;
+import com.example.projptut.repository.UtilisateurRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -11,15 +14,33 @@ import java.util.List;
 public class SeanceController {
 
     private final SeanceService service;
+    private final UtilisateurRepository utilisateurRepository;
 
-    public SeanceController(SeanceService service) {
+    public SeanceController(SeanceService service, UtilisateurRepository utilisateurRepository) {
         this.service = service;
+        this.utilisateurRepository = utilisateurRepository;
     }
 
     // Enregistrer une séance
     @PostMapping
-    public Seance enregistrerSeance(@RequestBody Seance seance) {
-        return service.enregistrerSeance(seance);
+    public ResponseEntity<?> enregistrerSeance(@RequestBody Seance seance) {
+        seance.setId(null);
+        if (seance.getPatient() == null || seance.getPatient().getId() == null) {
+            return ResponseEntity.badRequest().body("patient.id est requis");
+        }
+        Patient patient = (Patient) utilisateurRepository.findById(seance.getPatient().getId())
+                .orElse(null);
+        if (patient == null) {
+            return ResponseEntity.badRequest().body("Patient introuvable avec id=" + seance.getPatient().getId());
+        }
+        seance.setPatient(patient);
+        return ResponseEntity.ok(service.enregistrerSeance(seance));
+    }
+
+    // Récupérer toutes les séances
+    @GetMapping
+    public List<Seance> getAllSeances() {
+        return service.getAllSeances();
     }
 
     // Récupérer toutes les séances d'un patient

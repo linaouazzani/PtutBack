@@ -14,6 +14,11 @@ public class SeanceService {
         this.repository = repository;
     }
 
+    // Récupérer toutes les séances
+    public List<Seance> getAllSeances() {
+        return repository.findAll();
+    }
+
     // Enregistrer une séance
     public Seance enregistrerSeance(Seance seance) {
         return repository.save(seance);

@@ -1,5 +1,6 @@
 package com.example.projptut.Service;
 
+import com.example.projptut.entity.Administrateur;
 import com.example.projptut.entity.Patient;
 import com.example.projptut.entity.ProfessionnelDeSante;
 import com.example.projptut.entity.Utilisateur;
@@ -24,6 +25,10 @@ public class UtilisateurService {
     }
 
     public Utilisateur save(Utilisateur user) {
+        if (repository.findByEmail(user.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Un compte avec cette adresse email existe déjà.");
+        }
+
         Utilisateur u;
         String encodedPassword = passwordEncoder.encode(user.getMotDePasse());
 
@@ -31,10 +36,14 @@ public class UtilisateurService {
             Patient p = new Patient();
             copyUserFields(user, p, encodedPassword);
             u = repository.save(p);
-        } else if ("Professionnel".equalsIgnoreCase(user.getStatut())) { // corrigé ici
+        } else if ("Professionnel".equalsIgnoreCase(user.getStatut())) {
             ProfessionnelDeSante doc = new ProfessionnelDeSante();
             copyUserFields(user, doc, encodedPassword);
             u = repository.save(doc);
+        } else if ("Administrateur".equalsIgnoreCase(user.getStatut())) {
+            Administrateur admin = new Administrateur();
+            copyUserFields(user, admin, encodedPassword);
+            u = repository.save(admin);
         } else {
             throw new RuntimeException("Statut inconnu : " + user.getStatut());
         }
