@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface SeanceRepository extends JpaRepository<Seance, Long> {
     List<Seance> findByPatientId(Long patientId);
+    List<Seance> findByPatientIsNull();
 }

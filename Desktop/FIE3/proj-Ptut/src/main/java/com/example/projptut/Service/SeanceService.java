@@ -35,6 +35,11 @@ public class SeanceService {
                 .orElseThrow(() -> new RuntimeException("Séance non trouvée"));
     }
 
+    // Récupérer les séances anonymes
+    public List<Seance> getSeancesAnonymes() {
+        return repository.findByPatientIsNull();
+    }
+
     // Supprimer une séance
     public void supprimerSeance(Long id) {
         repository.deleteById(id);

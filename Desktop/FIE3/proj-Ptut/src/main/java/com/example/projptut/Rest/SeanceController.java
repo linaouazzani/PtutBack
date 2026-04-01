@@ -21,20 +21,27 @@ public class SeanceController {
         this.utilisateurRepository = utilisateurRepository;
     }
 
-    // Enregistrer une séance
+    // Enregistrer une séance (patient optionnel — null = séance anonyme)
     @PostMapping
     public ResponseEntity<?> enregistrerSeance(@RequestBody Seance seance) {
         seance.setId(null);
-        if (seance.getPatient() == null || seance.getPatient().getId() == null) {
-            return ResponseEntity.badRequest().body("patient.id est requis");
+        if (seance.getPatient() != null && seance.getPatient().getId() != null) {
+            Patient patient = (Patient) utilisateurRepository.findById(seance.getPatient().getId())
+                    .orElse(null);
+            if (patient == null) {
+                return ResponseEntity.badRequest().body("Patient introuvable avec id=" + seance.getPatient().getId());
+            }
+            seance.setPatient(patient);
+        } else {
+            seance.setPatient(null);
         }
-        Patient patient = (Patient) utilisateurRepository.findById(seance.getPatient().getId())
-                .orElse(null);
-        if (patient == null) {
-            return ResponseEntity.badRequest().body("Patient introuvable avec id=" + seance.getPatient().getId());
-        }
-        seance.setPatient(patient);
         return ResponseEntity.ok(service.enregistrerSeance(seance));
+    }
+
+    // Récupérer les séances anonymes
+    @GetMapping("/anonymes")
+    public List<Seance> getSeancesAnonymes() {
+        return service.getSeancesAnonymes();
     }
 
     // Récupérer toutes les séances
