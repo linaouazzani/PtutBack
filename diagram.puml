@@ -1,0 +1,263 @@
+@startuml ProjPtut - Diagramme UML Complet
+
+skinparam classAttributeIconSize 0
+skinparam backgroundColor #FAFAFA
+skinparam class {
+    BackgroundColor #EEF2FF
+    BorderColor #4B5EAA
+    ArrowColor #4B5EAA
+    HeaderBackgroundColor #4B5EAA
+    HeaderFontColor #FFFFFF
+}
+skinparam package {
+    BorderColor #888888
+    BackgroundColor #F5F5F5
+}
+
+' ============================================================
+' PACKAGE : entity
+' ============================================================
+package "com.example.projptut.entity" #E8F0FE {
+
+    class Utilisateur <<Entity>> {
+        - id : Long  <<@Id>>
+        - nom : String  <<@NotBlank>>
+        - email : String  <<@Email, unique>>
+        - sexe : String
+        - statut : String
+        - dateNaissance : LocalDate
+        - motDePasse : String  <<@NotBlank>>
+    }
+
+    class Patient <<Entity>> {
+        + prendreRendezVous() : void
+    }
+
+    class ProfessionnelDeSante <<Entity>> {
+        + consulterPatient(patient : Patient) : void
+    }
+
+    class Administrateur <<Entity>> {
+    }
+
+    class Seance <<Entity>> {
+        - id : Long  <<@Id>>
+        - dateDebut : LocalDateTime
+        - dateFin : LocalDateTime
+        - dureeMinutes : Integer
+        - wattsMin : Double
+        - wattsMoy : Double
+        - wattsMax : Double
+        - bpmMin : Integer
+        - bpmMoy : Integer
+        - bpmMax : Integer
+        - mode : String
+        --
+        + getId() : Long
+        + setId(id : Long) : void
+        + getDateDebut() : LocalDateTime
+        + setDateDebut(dateDebut : LocalDateTime) : void
+        + getDateFin() : LocalDateTime
+        + setDateFin(dateFin : LocalDateTime) : void
+        + getDureeMinutes() : Integer
+        + setDureeMinutes(dureeMinutes : Integer) : void
+        + getWattsMin() : Double
+        + setWattsMin(wattsMin : Double) : void
+        + getWattsMoy() : Double
+        + setWattsMoy(wattsMoy : Double) : void
+        + getWattsMax() : Double
+        + setWattsMax(wattsMax : Double) : void
+        + getBpmMin() : Integer
+        + setBpmMin(bpmMin : Integer) : void
+        + getBpmMoy() : Integer
+        + setBpmMoy(bpmMoy : Integer) : void
+        + getBpmMax() : Integer
+        + setBpmMax(bpmMax : Integer) : void
+        + getMode() : String
+        + setMode(mode : String) : void
+        + getPatient() : Patient
+        + setPatient(patient : Patient) : void
+    }
+}
+
+' ============================================================
+' PACKAGE : DTO
+' ============================================================
+package "com.example.projptut.DTO" #FFF3E0 {
+
+    class LoginRequest <<DTO>> {
+        - email : String
+        - motDePasse : String
+        --
+        + getEmail() : String
+        + setEmail(email : String) : void
+        + getMotDePasse() : String
+        + setMotDePasse(motDePasse : String) : void
+    }
+}
+
+' ============================================================
+' PACKAGE : repository
+' ============================================================
+package "com.example.projptut.repository" #E8F5E9 {
+
+    interface UtilisateurRepository <<Repository>> {
+        + findByEmail(email : String) : Optional<Utilisateur>
+        + findAll() : List<Utilisateur>
+    }
+
+    interface SeanceRepository <<Repository>> {
+        + findByPatientId(patientId : Long) : List<Seance>
+        + findByPatientIsNull() : List<Seance>
+    }
+}
+
+' ============================================================
+' PACKAGE : Service
+' ============================================================
+package "com.example.projptut.Service" #FFF8E1 {
+
+    class UtilisateurService <<Service>> {
+        - repository : UtilisateurRepository
+        - passwordEncoder : PasswordEncoder
+        --
+        + UtilisateurService(repository, passwordEncoder)
+        + getUsers() : List<Utilisateur>
+        + save(user : Utilisateur) : Utilisateur
+        - copyUserFields(source, target, encodedPassword) : void
+        + Login(email : String, motDePasse : String) : Utilisateur
+    }
+
+    class SeanceService <<Service>> {
+        - repository : SeanceRepository
+        --
+        + SeanceService(repository : SeanceRepository)
+        + getAllSeances() : List<Seance>
+        + enregistrerSeance(seance : Seance) : Seance
+        + getSeancesPatient(patientId : Long) : List<Seance>
+        + getSeanceById(id : Long) : Seance
+        + getSeancesAnonymes() : List<Seance>
+        + supprimerSeance(id : Long) : void
+    }
+}
+
+' ============================================================
+' PACKAGE : Rest (Controllers)
+' ============================================================
+package "com.example.projptut.Rest" #FCE4EC {
+
+    class UtilisateurController <<RestController>> {
+        - service : UtilisateurService
+        - jwtUtil : JwtUtil
+        --
+        + UtilisateurController(service, jwtUtil)
+        + GetUsers() : List<Utilisateur>  <<GET /api/utilisateurs>>
+        + create(utilisateur : Utilisateur) : ResponseEntity<?>  <<POST /api/utilisateurs>>
+        + login(loginRequest : LoginRequest) : Map<String,String>  <<POST /api/utilisateurs/login>>
+    }
+
+    class SeanceController <<RestController>> {
+        - service : SeanceService
+        - utilisateurRepository : UtilisateurRepository
+        --
+        + SeanceController(service, utilisateurRepository)
+        + enregistrerSeance(seance : Seance) : ResponseEntity<?>  <<POST /api/seances>>
+        + getSeancesAnonymes() : List<Seance>  <<GET /api/seances/anonymes>>
+        + getAllSeances() : List<Seance>  <<GET /api/seances>>
+        + getSeancesPatient(patientId : Long) : List<Seance>  <<GET /api/seances/patient/{id}>>
+        + getSeanceById(id : Long) : Seance  <<GET /api/seances/{id}>>
+        + supprimerSeance(id : Long) : void  <<DELETE /api/seances/{id}>>
+    }
+}
+
+' ============================================================
+' PACKAGE : Configuration
+' ============================================================
+package "com.example.projptut.Configuratio" #EDE7F6 {
+
+    class JwtUtil <<Component>> {
+        - SECRET_KEY : SecretKey
+        - EXPIRATION_MS : long
+        --
+        + JwtUtil(secret : String, expirationMs : long)
+        + generateToken(email : String) : String
+        + extractEmail(token : String) : String
+        + validateToken(token : String) : boolean
+    }
+
+    class JwtFilter <<Filter>> {
+        - jwtUtil : JwtUtil
+        --
+        + JwtFilter(jwtUtil : JwtUtil)
+        # doFilterInternal(request, response, filterChain) : void
+    }
+
+    class SecurityConfig <<Configuration>> {
+        - jwtUtil : JwtUtil
+        --
+        + SecurityConfig(jwtUtil : JwtUtil)
+        + filterChain(http : HttpSecurity) : SecurityFilterChain  <<@Bean>>
+        + corsConfigurationSource() : CorsConfigurationSource  <<@Bean>>
+        + passwordEncoder() : PasswordEncoder  <<@Bean>>
+    }
+
+    class SwaggerConfig <<Configuration>> {
+        + customOpenAPI() : OpenAPI  <<@Bean>>
+    }
+}
+
+' ============================================================
+' PACKAGE : Application
+' ============================================================
+package "com.example.projptut" #F3E5F5 {
+
+    class ProjPtutApplication <<SpringBootApplication>> {
+        + {static} main(args : String[]) : void
+    }
+}
+
+' ============================================================
+' RELATIONS D'HÉRITAGE (Inheritance - JOINED strategy)
+' ============================================================
+Utilisateur <|-- Patient
+Utilisateur <|-- ProfessionnelDeSante
+Utilisateur <|-- Administrateur
+
+' ============================================================
+' RELATIONS D'ASSOCIATION / COMPOSITION
+' ============================================================
+Seance "0..*" --> "0..1" Patient : patient\n<<ManyToOne, optional>>
+
+' ============================================================
+' RELATIONS REPOSITORIES -> ENTITIES (JpaRepository)
+' ============================================================
+UtilisateurRepository ..> Utilisateur : manages
+SeanceRepository ..> Seance : manages
+
+' ============================================================
+' RELATIONS SERVICES -> REPOSITORIES (Dependency Injection)
+' ============================================================
+UtilisateurService --> UtilisateurRepository : uses
+SeanceService --> SeanceRepository : uses
+
+' ============================================================
+' RELATIONS CONTROLLERS -> SERVICES (Dependency Injection)
+' ============================================================
+UtilisateurController --> UtilisateurService : uses
+UtilisateurController --> JwtUtil : uses
+SeanceController --> SeanceService : uses
+SeanceController --> UtilisateurRepository : uses
+
+' ============================================================
+' RELATIONS CONFIGURATION
+' ============================================================
+JwtFilter --> JwtUtil : uses
+SecurityConfig --> JwtUtil : uses
+SecurityConfig ..> JwtFilter : creates
+
+' ============================================================
+' RELATIONS DTO
+' ============================================================
+UtilisateurController ..> LoginRequest : uses
+
+@enduml

@@ -34,9 +34,9 @@ public class Seance {
     // Mode de jeu
     private String mode; // "SUIVI", "LIBRE", "DEMO"
 
-    // Lien avec le patient (optionnel pour les séances anonymes)
-    @ManyToOne(optional = true)
-    @JoinColumn(name = "patient_id", nullable = true)
+    // Lien avec le patient
+    @ManyToOne
+    @JoinColumn(name = "patient_id")
     private Patient patient;
 
     // Getters and Setters
