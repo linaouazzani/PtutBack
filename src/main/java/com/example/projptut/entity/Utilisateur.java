@@ -1,6 +1,6 @@
 package com.example.projptut.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -37,7 +37,7 @@ public class Utilisateur {
     private LocalDate dateNaissance;
 
     @NotBlank
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String motDePasse;
 
     // Getters
