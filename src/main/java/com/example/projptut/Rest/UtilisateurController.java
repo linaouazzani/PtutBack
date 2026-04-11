@@ -35,8 +35,10 @@ public class UtilisateurController {
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody Utilisateur utilisateur) {
         try {
-            Utilisateur created = service.publicRegister(utilisateur);
-            return ResponseEntity.ok(created);
+            service.publicRegister(utilisateur);
+            Map<String, String> ok = new HashMap<>();
+            ok.put("message", "Inscription réussie");
+            return ResponseEntity.ok(ok);
         } catch (IllegalArgumentException e) {
             Map<String, String> error = new HashMap<>();
             error.put("message", e.getMessage());
@@ -52,8 +54,10 @@ public class UtilisateurController {
     @PostMapping("/admin")
     public ResponseEntity<?> createByAdmin(@Valid @RequestBody Utilisateur utilisateur) {
         try {
-            Utilisateur created = service.saveByAdmin(utilisateur);
-            return ResponseEntity.ok(created);
+            service.saveByAdmin(utilisateur);
+            Map<String, String> ok = new HashMap<>();
+            ok.put("message", "Inscription réussie");
+            return ResponseEntity.ok(ok);
         } catch (IllegalArgumentException e) {
             Map<String, String> error = new HashMap<>();
             error.put("message", e.getMessage());
